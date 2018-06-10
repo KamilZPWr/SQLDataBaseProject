@@ -97,10 +97,8 @@ select * from podajHoteleWKraju('W³ochy')
 -- a w zmiennej zewnêtrznej zwraca ³¹czn¹ cenê za wy¿ywienie i pokój ostatniej jego rezerwacji
 -- cene pokoju, trzeba przemno¿yæ przez mno¿nik 
 
-CREATE PROCEDURE pobierzKosztyGoœcia
-@PESEL BIGINT,
-@koszty DECIMAL(20,2) OUTPUT
-AS 
+CREATE FUNCTION pobierzKosztyGoscia (@PESEL BIGINT)
+RETURNS DECIMAL(20,2)
 BEGIN
 DECLARE @mnoznik NUMERIC(5,2), @cenaWyzywienia DECIMAL(20,2), @cenaPokoju DECIMAL(20,2), @hotel INT, @pokój INT, @wy¿ywienie INT
 SELECT TOP 1
@@ -114,10 +112,12 @@ ORDER BY za_data_rezerwacji DESC
 SELECT @mnoznik = mno¿nik FROM Standard_Hotelu WHERE st_id = (SELECT ho_st_id FROM Hotele WHERE ho_id = @hotel)
 SELECT @cenaWyzywienia = wy_cena FROM Wy¿ywienie WHERE wy_id = @wy¿ywienie
 SELECT @cenaPokoju = po_cena FROM Pokoje1 WHERE po_id = @pokój 
-SET @koszty = @cenaPokoju * @mnoznik + @cenaWyzywienia
+RETURN @cenaPokoju * @mnoznik + @cenaWyzywienia
 END;
 
-drop procedure pobierzKosztyGoœcia
+drop function pobierzKosztyGoscia
+
+SELECT dbo.pobierzKosztyGoscia(999982372)
 
 GO
 DECLARE @PESEL INT, @dataRezerwacji DATE, @koszty DECIMAL(20,2)
@@ -191,17 +191,17 @@ SELECT @miasto AS Miasto, @kraj AS Pañstwo
 -- 6 --
 -- napisz funkcjê, która zwróci nazwisko goœcia, który wyda³ najwiêcej w ostatniej rezerwacji
 
-CREATE FUNCTION znajdŸNajwiêkszyKoszt(@sth VARCHAR(max))
+CREATE FUNCTION znajdŸNajwiêkszyKoszt()
 RETURNS VARCHAR(MAX) 
 AS
 BEGIN
-DECLARE @najwiekszyKoszt DECIMAL(20,2), @koszty DECIMAL(20,2), @cnt INT, @nazwiskoMax VARCHAR(max), @pesel BIGINT, @nazwiskoTmp VARCHAR(max)
+DECLARE @najwiekszyKoszt DECIMAL(20,2) = 0, @koszty DECIMAL(20,2), @cnt INT, @nazwiskoMax VARCHAR(max), @pesel BIGINT, @nazwiskoTmp VARCHAR(max)
 
 SELECT @cnt = count(go_id) FROM Goœæ 
 WHILE @cnt >= 0 
 BEGIN
 	SELECT @pesel = go_pesel, @nazwiskoTmp = go_nazwisko FROM Goœæ WHERE go_id = @cnt
-	EXEC pobierzKosztyGoœcia @pesel, @koszty output
+	SELECT @koszty = dbo.pobierzKosztyGoscia(@pesel)
 	IF @koszty > @najwiekszyKoszt
 	BEGIN
 		SET @nazwiskoMax = @nazwiskoTmp
@@ -215,4 +215,4 @@ END
 
 drop function znajdŸNajwiêkszyKoszt
 
-SELECT dbo.znajdŸNajwiêkszyKoszt('')
+SELECT dbo.znajdŸNajwiêkszyKoszt() AS GoœæCoNajwiêcejZap³aci³
