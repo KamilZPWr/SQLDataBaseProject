@@ -1,3 +1,5 @@
+use gwiazdy
+
 USE HoteleBaza;
 GO
 
@@ -21,11 +23,11 @@ insert into Miasto values ('Rzym','2')
 insert into Miasto values ('Kraków','3')
 insert into Miasto values ('Madryt','1')
 
-insert into Standard_Hotelu values ('1gwiazdkowy')
-insert into Standard_Hotelu values ('2gwiazdkowy')
-insert into Standard_Hotelu values ('3gwiazdkowy')
-insert into Standard_Hotelu values ('4gwiazdkowy')
-insert into Standard_Hotelu values ('5gwiazdkowy')
+insert into Standard_Hotelu values ('1gwiazdkowy',1)
+insert into Standard_Hotelu values ('2gwiazdkowy',1.5)
+insert into Standard_Hotelu values ('3gwiazdkowy',2)
+insert into Standard_Hotelu values ('4gwiazdkowy',2.5)
+insert into Standard_Hotelu values ('5gwiazdkowy',3)
 
 insert into Hotele values ('1','Hilton Hotel','5','9')
 insert into Hotele values ('2','Palace Hotel','3','12')
@@ -67,11 +69,13 @@ insert into Goœæ values ('Magdalena','Pieczarka', '569118559','madziap@gmail.com
 insert into Goœæ values ('Jacek','Morski', '907998232','j.morski@gmail.com')
 insert into Goœæ values ('Beata','Dobra', '999877654','dobra@gmail.com')
 
-insert into Zamówienie values('1','2','3','4')
-insert into Zamówienie values('2','2','2','2')
-insert into Zamówienie values('3','3','3','3')
-insert into Zamówienie values('4','4','1','1')
-insert into Zamówienie values('10','6','5','2')
-insert into Zamówienie values('7','7','6','3')
-insert into Zamówienie values('5','3','3','6')
-insert into Zamówienie values('6','5','4','5')
+insert into Zamówienie values('1','2','3','4', '2018-01-01')
+insert into Zamówienie values('2','2','2','2', '2018-01-02')
+insert into Zamówienie values('3','3','3','3', '2018-01-03')
+insert into Zamówienie values('4','4','1','1', '2018-01-04')
+insert into Zamówienie values('10','6','5','2', '2018-01-05')
+insert into Zamówienie values('7','7','6','3', '2018-01-06')
+insert into Zamówienie values('5','3','3','6', '2018-01-07')
+insert into Zamówienie values('6','5','4','5', '2018-01-08')
+insert into Zamówienie values('8','1','3','6', '2018-01-09')
+insert into Zamówienie values('9','10','4','5', '2018-01-10')
