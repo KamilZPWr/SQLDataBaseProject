@@ -12,9 +12,9 @@ GO
 USE HoteleBaza;
 GO
 
-CREATE TABLE Pañstwo (
+CREATE TABLE PaÅ„stwo (
   pa_id int identity(1,1) primary key,
-  pa_pañstwo char(45),
+  pa_paÅ„stwo char(45),
  ) 
 
 CREATE TABLE Miasto (
@@ -22,13 +22,13 @@ CREATE TABLE Miasto (
   mi_miasto varchar(45),
   mi_pa_id int,
 
-  foreign key (mi_pa_id) references Pañstwo(pa_id) on delete cascade,
+  foreign key (mi_pa_id) references PaÅ„stwo(pa_id) on delete cascade,
 )
 
 CREATE TABLE Standard_Hotelu(
   st_id int identity (1,1) primary key,
   st_rodzaj varchar(max),
-  mno¿nik numeric(5,2) 
+  mnoÅ¼nik numeric(5,2) 
 ) 
 
 CREATE TABLE Hotele (
@@ -49,14 +49,14 @@ CREATE TABLE Pokoje1 (
   po_standard varchar(max),
 ) 
 
-CREATE TABLE Wy¿ywienie(
+CREATE TABLE WyÅ¼ywienie(
   wy_id int identity (1,1) primary key,
   wy_typ varchar(max),
   wy_cena decimal(20,2),
   wy_dieta varchar(max)
 )
   
-CREATE TABLE Goœæ(
+CREATE TABLE GoÅ›Ä‡(
   go_id int identity (1,1) primary key,
   go_imie varchar(max),
   go_nazwisko varchar(max),
@@ -64,7 +64,7 @@ CREATE TABLE Goœæ(
   go_mail varchar(max),
 )
 
-CREATE TABLE Zamówienie(
+CREATE TABLE ZamÃ³wienie(
   za_id int identity (1,1) primary key,
   za_go_id int,
   za_ho_id int,
@@ -72,46 +72,46 @@ CREATE TABLE Zamówienie(
   za_wy_id int,
   za_data_rezerwacji DATE
    
-  foreign key (za_go_id) references Goœæ(go_id),
+  foreign key (za_go_id) references GoÅ›Ä‡(go_id),
   foreign key (za_ho_id) references Hotele(ho_id) on delete cascade,
   foreign key (za_po_id) references Pokoje1(po_id),
-  foreign key (za_wy_id) references Wy¿ywienie(wy_id),
+  foreign key (za_wy_id) references WyÅ¼ywienie(wy_id),
 )
 
 -- 1 --
--- napisz funkcjê, która jako argument pobiera kraj,
--- a zwaraca wszytskie hotele, ktore siê w nim znajduj¹
+-- napisz funkcjÄ™, ktÃ³ra jako argument pobiera kraj,
+-- a zwaraca wszytskie hotele, ktore siÄ™ w nim znajdujÄ…
 CREATE FUNCTION podajHoteleWKraju(@kraj VARCHAR(max))
 RETURNS table 
 AS
 RETURN( SELECT ho_hotel AS Hotel FROM Hotele WHERE ho_mi_id IN (
 	SELECT mi_id FROM Miasto WHERE mi_pa_id IN (
-		SELECT pa_id FROM Pañstwo WHERE pa_pañstwo = @kraj)))
+		SELECT pa_id FROM PaÅ„stwo WHERE pa_paÅ„stwo = @kraj)))
 
 
 drop function podajHoteleWKraju
-select * from podajHoteleWKraju('W³ochy')
+select * from podajHoteleWKraju('WÅ‚ochy')
 
 -- 2 -- 
--- napisz procedurê, która jako argument pobiera pesel goœcia,
--- a w zmiennej zewnêtrznej zwraca ³¹czn¹ cenê za wy¿ywienie i pokój ostatniej jego rezerwacji
--- cene pokoju, trzeba przemno¿yæ przez mno¿nik 
+-- napisz funkcjÄ™, ktÃ³ra jako argument pobiera pesel goÅ›cia,
+-- a w zmiennej zewnÄ™trznej zwraca Å‚Ä…cznÄ… cenÄ™ za wyÅ¼ywienie i pokÃ³j ostatniej jego rezerwacji
+-- cene pokoju, trzeba przemnoÅ¼yÄ‡ przez mnoÅ¼nik 
 
 CREATE FUNCTION pobierzKosztyGoscia (@PESEL BIGINT)
 RETURNS DECIMAL(20,2)
 BEGIN
-DECLARE @mnoznik NUMERIC(5,2), @cenaWyzywienia DECIMAL(20,2), @cenaPokoju DECIMAL(20,2), @hotel INT, @pokój INT, @wy¿ywienie INT
+DECLARE @mnoznik NUMERIC(5,2), @cenaWyzywienia DECIMAL(20,2), @cenaPokoju DECIMAL(20,2), @hotel INT, @pokÃ³j INT, @wyÅ¼ywienie INT
 SELECT TOP 1
 	@hotel = za_ho_id,  
-	@pokój = za_po_id,
-	@wy¿ywienie = za_wy_id
-FROM Zamówienie 
-WHERE za_go_id = (SELECT go_id FROM Goœæ WHERE go_pesel = @PESEL)
+	@pokÃ³j = za_po_id,
+	@wyÅ¼ywienie = za_wy_id
+FROM ZamÃ³wienie 
+WHERE za_go_id = (SELECT go_id FROM GoÅ›Ä‡ WHERE go_pesel = @PESEL)
 ORDER BY za_data_rezerwacji DESC
 
-SELECT @mnoznik = mno¿nik FROM Standard_Hotelu WHERE st_id = (SELECT ho_st_id FROM Hotele WHERE ho_id = @hotel)
-SELECT @cenaWyzywienia = wy_cena FROM Wy¿ywienie WHERE wy_id = @wy¿ywienie
-SELECT @cenaPokoju = po_cena FROM Pokoje1 WHERE po_id = @pokój 
+SELECT @mnoznik = mnoÅ¼nik FROM Standard_Hotelu WHERE st_id = (SELECT ho_st_id FROM Hotele WHERE ho_id = @hotel)
+SELECT @cenaWyzywienia = wy_cena FROM WyÅ¼ywienie WHERE wy_id = @wyÅ¼ywienie
+SELECT @cenaPokoju = po_cena FROM Pokoje1 WHERE po_id = @pokÃ³j 
 RETURN @cenaPokoju * @mnoznik + @cenaWyzywienia
 END;
 
@@ -122,33 +122,33 @@ SELECT dbo.pobierzKosztyGoscia(999982372)
 GO
 DECLARE @PESEL INT, @dataRezerwacji DATE, @koszty DECIMAL(20,2)
 SET @PESEL = '999982372'
-EXEC pobierzKosztyGoœcia @PESEL, @koszty output
-SELECT @PESEL AS Goœæ, @koszty AS Koszty_wyjazdu
+EXEC pobierzKosztyGoÅ›cia @PESEL, @koszty output
+SELECT @PESEL AS GoÅ›Ä‡, @koszty AS Koszty_wyjazdu
 
-select * FROM Goœæ
+select * FROM GoÅ›Ä‡
 
 -- 3 -- 
--- napisz triger, który po usuniêciu goœcia, usunie jego zamówienie
-CREATE TRIGGER usunGoscia ON Goœæ
+-- napisz triger, ktÃ³ry po usuniÄ™ciu goÅ›cia, usunie jego zamÃ³wienie
+CREATE TRIGGER usunGoscia ON GoÅ›Ä‡
 INSTEAD OF DELETE
 AS
 BEGIN
-DECLARE @goœæ INT 
-SELECT @goœæ = go_id FROM deleted
-DELETE FROM Zamówienie WHERE za_go_id = @goœæ
-DELETE FROM Goœæ WHERE go_id = @goœæ
+DECLARE @goÅ›Ä‡ INT 
+SELECT @goÅ›Ä‡ = go_id FROM deleted
+DELETE FROM ZamÃ³wienie WHERE za_go_id = @goÅ›Ä‡
+DELETE FROM GoÅ›Ä‡ WHERE go_id = @goÅ›Ä‡
 END
 
-select * from Goœæ
-select * from Zamówienie
+select * from GoÅ›Ä‡
+select * from ZamÃ³wienie
 
-DELETE FROM Goœæ WHERE go_pesel = '123333453'
+DELETE FROM GoÅ›Ä‡ WHERE go_pesel = '123333453'
 
 -- 4 --
--- napisz trigger, który po dodaniu zamówienie na pokój, 
--- usunie jeden pokój z wolnych miejsc
+-- napisz trigger, ktÃ³ry po dodaniu zamÃ³wienie na pokÃ³j, 
+-- usunie jeden pokÃ³j z wolnych miejsc
 
-CREATE TRIGGER usunWolnyPokoj ON Zamówienie
+CREATE TRIGGER usunWolnyPokoj ON ZamÃ³wienie
 AFTER INSERT
 AS
 BEGIN
@@ -159,13 +159,13 @@ UPDATE Hotele SET ho_pokoje_wolne = @liczbaMiejsc - 1 WHERE ho_id = @hotel
 END
 
 select * from Hotele
-select * from Zamówienie
+select * from ZamÃ³wienie
 
 -- 5 --
--- napisz procedurê, która jako argument pobiera imiê i nazwisko goœcia, 
--- a zwraca miasto i kraj, w których by³ / bêdzie goœæ
+-- napisz procedurÄ™, ktÃ³ra jako argument pobiera imiÄ™ i nazwisko goÅ›cia, 
+-- a zwraca miasto i kraj, w ktÃ³rych byÅ‚ / bÄ™dzie goÅ›Ä‡
 
-CREATE PROCEDURE gdzieBy³BêdzieGoœæ
+CREATE PROCEDURE gdzieByÅ‚BÄ™dzieGoÅ›Ä‡
 @imie VARCHAR(max),
 @nazwisko VARCHAR(max),
 @kraj VARCHAR(max) output,
@@ -173,11 +173,11 @@ CREATE PROCEDURE gdzieBy³BêdzieGoœæ
 AS 
 BEGIN
 DECLARE @hotelId INT, @goscId INT, @miastoId INT, @krajId INT
-SELECT @goscId = go_id FROM Goœæ WHERE go_imie = @imie AND go_nazwisko = @nazwisko
-SELECT @hotelId = za_ho_id FROM Zamówienie WHERE za_go_id = @goscId
+SELECT @goscId = go_id FROM GoÅ›Ä‡ WHERE go_imie = @imie AND go_nazwisko = @nazwisko
+SELECT @hotelId = za_ho_id FROM ZamÃ³wienie WHERE za_go_id = @goscId
 SELECT @miastoId = ho_mi_id FROM Hotele WHERE ho_id = @hotelId
 SELECT @krajId = mi_pa_id FROM Miasto WHERE mi_id = @miastoId
-SELECT @kraj = pa_pañstwo FROM Pañstwo WHERE pa_id = @krajId
+SELECT @kraj = pa_paÅ„stwo FROM PaÅ„stwo WHERE pa_id = @krajId
 SELECT @miasto = mi_miasto FROM Miasto WHERE mi_id = @miastoId
 END;
 
@@ -185,22 +185,22 @@ GO
 DECLARE @imie VARCHAR(max),@nazwisko VARCHAR(max), @kraj VARCHAR(max), @miasto VARCHAR(max)
 SET @imie = 'Jacek'
 SET @nazwisko = 'Morski'
-EXEC gdzieBy³BêdzieGoœæ @imie, @nazwisko, @kraj output, @miasto output
-SELECT @miasto AS Miasto, @kraj AS Pañstwo
+EXEC gdzieByÅ‚BÄ™dzieGoÅ›Ä‡ @imie, @nazwisko, @kraj output, @miasto output
+SELECT @miasto AS Miasto, @kraj AS PaÅ„stwo
 
 -- 6 --
--- napisz funkcjê, która zwróci nazwisko goœcia, który wyda³ najwiêcej w ostatniej rezerwacji
+-- napisz funkcjÄ™, ktÃ³ra zwrÃ³ci nazwisko goÅ›cia, ktÃ³ry wydaÅ‚ najwiÄ™cej w ostatniej rezerwacji
 
-CREATE FUNCTION znajdŸNajwiêkszyKoszt()
+CREATE FUNCTION znajdÅºNajwiÄ™kszyKoszt()
 RETURNS VARCHAR(MAX) 
 AS
 BEGIN
 DECLARE @najwiekszyKoszt DECIMAL(20,2) = 0, @koszty DECIMAL(20,2), @cnt INT, @nazwiskoMax VARCHAR(max), @pesel BIGINT, @nazwiskoTmp VARCHAR(max)
 
-SELECT @cnt = count(go_id) FROM Goœæ 
+SELECT @cnt = count(go_id) FROM GoÅ›Ä‡ 
 WHILE @cnt >= 0 
 BEGIN
-	SELECT @pesel = go_pesel, @nazwiskoTmp = go_nazwisko FROM Goœæ WHERE go_id = @cnt
+	SELECT @pesel = go_pesel, @nazwiskoTmp = go_nazwisko FROM GoÅ›Ä‡ WHERE go_id = @cnt
 	SELECT @koszty = dbo.pobierzKosztyGoscia(@pesel)
 	IF @koszty > @najwiekszyKoszt
 	BEGIN
@@ -213,8 +213,9 @@ END
 	RETURN @nazwiskoMax
 END
 
-drop function znajdŸNajwiêkszyKoszt
+drop function znajdÅºNajwiÄ™kszyKoszt
 
+<<<<<<< HEAD
 SELECT dbo.znajdŸNajwiêkszyKoszt() AS GoœæCoNajwiêcejZap³aci³
 
 -- 7 --
@@ -266,3 +267,6 @@ RETURN (SELECT DISTINCT go_imie AS Imiê, go_nazwisko AS Nazwisko, go_mail AS Ema
 drop FUNCTION pokazGosciZDieta
 
 SELECT * FROM pokazGosciZDieta('miesna')
+=======
+SELECT dbo.znajdÅºNajwiÄ™kszyKoszt() AS GoÅ›Ä‡CoNajwiÄ™cejZapÅ‚aciÅ‚
+>>>>>>> 0ef97a77977d87b297fa8be70dc17cb6eebbc286
