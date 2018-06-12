@@ -216,3 +216,53 @@ END
 drop function znajdŸNajwiêkszyKoszt
 
 SELECT dbo.znajdŸNajwiêkszyKoszt() AS GoœæCoNajwiêcejZap³aci³
+
+-- 7 --
+-- Napisz widok ktory pokazuje wszystkich goœci oraz ich standard pokoju w hotelu
+
+CREATE VIEW standardPokojuGosci AS(
+SELECT go_imie AS Imiê, go_nazwisko AS Nazwisko, st_rodzaj AS StandardPokoju FROM Goœæ LEFT JOIN 
+	Zamówienie ON Goœæ.go_id = Zamówienie.za_go_id LEFT JOIN 
+		Hotele ON Zamówienie.za_ho_id = Hotele.ho_id LEFT JOIN
+			Standard_Hotelu ON Hotele.ho_st_id = Standard_Hotelu.st_id)
+
+SELECT * FROM standardPokojuGosci
+
+-- 8 --
+-- napisz funkcje, która jako parametr przyjmuje nazwe hotelu, a zwraca wszystkie zamówienia do niego
+
+CREATE FUNCTION zamowieniaHotelu(@hotelNazwa VARCHAR(max))
+RETURNS TABLE 
+AS
+RETURN (SELECT ho_hotel AS Hotel, po_rodzaj AS Pokój, za_id AS NumerZamówienia FROM Hotele LEFT JOIN 
+	Zamówienie ON Hotele.ho_id = Zamówienie.za_ho_id INNER JOIN
+	Pokoje1 ON Zamówienie.za_po_id = Pokoje1.po_id WHERE ho_hotel = @hotelNazwa)
+
+drop function zamowieniaHotelu
+
+SELECT * FROM zamowieniaHotelu('Suite Hotel')
+
+-- 9 -- 
+-- napisz widok, który pokazuje wszystkich goœci którzy nie jedza miêsa
+
+CREATE VIEW pokazKlientowBezMiesa AS(
+SELECT DISTINCT go_imie AS Imiê, go_nazwisko AS Nazwisko FROM Goœæ LEFT JOIN 
+	Zamówienie ON Goœæ.go_id = Zamówienie.za_go_id LEFT JOIN
+	Wy¿ywienie ON Wy¿ywienie.wy_id = Zamówienie.za_wy_id WHERE 
+	wy_dieta != 'miesna' )
+
+SELECT * FROM pokazKlientowBezMiesa
+
+-- 10 --
+-- napisz fukcjê, która jako argumet przyjmuje typ wy¿ywienia i pokazuje email osób które j¹ wybra³y
+
+CREATE FUNCTION pokazGosciZDieta(@dieta VARCHAR(max))
+RETURNS TABLE 
+AS
+RETURN (SELECT DISTINCT go_imie AS Imiê, go_nazwisko AS Nazwisko, go_mail AS Email FROM Goœæ INNER JOIN
+	Zamówienie ON Goœæ.go_id = Zamówienie.za_go_id LEFT JOIN 
+	Wy¿ywienie ON Zamówienie.za_wy_id = Wy¿ywienie.wy_id WHERE wy_dieta = @dieta)
+
+drop FUNCTION pokazGosciZDieta
+
+SELECT * FROM pokazGosciZDieta('miesna')
